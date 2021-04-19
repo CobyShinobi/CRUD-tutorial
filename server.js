@@ -10,17 +10,18 @@ MongoClient.connect(connectionString, { useUnifiedTopology: true })
       const db = client.db("star-wars-quotes")
       const quotesCollection = db.collection("quotes")
 
+      app.set("view engine", "ejs")
+
       app.use(bodyParser.urlencoded({ extended: true }))
+
       app.get("/", (req, res) => {
           db.collection("quotes").find().toArray()
             .then(results => {
-                console.log(results)
+                res.render("index.ejs", {quotes: results})
             })
             .catch(error => console.error(err0r))
-          const cursor = db.collection("quotes").find()
-          console.log(cursor)
-          res.sendFile(__dirname + "/index.html")
       })
+
       app.post("/quotes", (req, res) => {
           quotesCollection.insertOne(req.body)
             .then(result => {
@@ -28,6 +29,7 @@ MongoClient.connect(connectionString, { useUnifiedTopology: true })
             })
             .catch(error => console.error(error))
       })
+
       app.listen(3000, function() {
           console.log("listening on 3000")
       })
