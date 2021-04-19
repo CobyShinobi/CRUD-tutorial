@@ -13,14 +13,8 @@ MongoClient.connect(connectionString, { useUnifiedTopology: true })
       app.set("view engine", "ejs")
 
       app.use(bodyParser.urlencoded({ extended: true }))
-
-      app.get("/", (req, res) => {
-          db.collection("quotes").find().toArray()
-            .then(results => {
-                res.render("index.ejs", {quotes: results})
-            })
-            .catch(error => console.error(err0r))
-      })
+      app.use(bodyParser.json())
+      app.use(express.static("public"))
 
       app.post("/quotes", (req, res) => {
           quotesCollection.insertOne(req.body)
@@ -28,6 +22,30 @@ MongoClient.connect(connectionString, { useUnifiedTopology: true })
                 res.redirect("/")
             })
             .catch(error => console.error(error))
+      })
+
+      app.get("/", (req, res) => {
+          db.collection("quotes").find().toArray()
+            .then(results => {
+                res.render("index.ejs", {quotes: results})
+            })    
+            .catch(error => console.error(err0r))
+      })
+
+      app.put("/quotes", (req, res) => {
+        quotesCollection.findOneAndUpdate(
+          {name: "Yoda"},
+          {$set: {
+            name: req.body.name,
+            quote: req.body.quote
+            }
+          },
+          {upsert: true}
+        )
+          .then(result => {
+            res.json("Success")
+          })
+          .catch(error => console.error(error))
       })
 
       app.listen(3000, function() {
